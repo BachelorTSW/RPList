@@ -31,8 +31,7 @@ class RPListMod
 		// Store a reference to the root MovieClip
 		m_swfRoot = swfRoot;
 		_Flash = MovieClip(swfRoot);
-		Nametags.SignalNametagAdded.Connect(SlotNameAdded, swfRoot);
-		Nametags.SignalNametagRemoved.Connect(SlotNameRemoved, swfRoot);
+
 		
 
 		registerGuiElements();
@@ -44,7 +43,8 @@ class RPListMod
 		m_playerListWindow = new RPListPlayerListWindow(_Flash.attachMovie("RPListPlayerListWindow", "m_playerListWindow", _Flash.getNextHighestDepth()));
 		
 		ToonsInVicinity = new Array();
-		
+		Nametags.SignalNametagAdded.Connect(SlotNameAdded, this);
+		Nametags.SignalNametagRemoved.Connect(SlotNameRemoved, this);
 
 		
 		m_clientID = Character.GetClientCharacter().GetID().m_Instance;
@@ -54,8 +54,19 @@ class RPListMod
 		m_clientPlayfieldID = Character.GetClientCharacter().GetPlayfieldID();
 		
 		PlayersURL = "";
+
+		var m_NameArray = _root.nametagcontroller;
 		
-		
+
+		for (var proc in _root.nametagcontroller.m_NametagIncomingQueue)
+		{
+			var temp:ID32 = _root.nametagcontroller.m_NametagIncomingQueue[proc];
+			if (temp.IsPlayer)
+			{
+			ToonsInVicinity.push(temp);
+
+			}
+		}
 		
 		
 		shareLocation();
@@ -76,8 +87,8 @@ class RPListMod
 		return archive;
 	}
 
-	public function shareLocation() {
-		
+	public function shareLocation() 
+	{
 		
 		MakePlayersURL();
 		m_shareLocationWindow = new RPListShareLocationWindow(_Flash.attachMovie("RPListShareLocationWindow", "m_shareLocationWindow", _Flash.getNextHighestDepth()));
@@ -130,5 +141,6 @@ class RPListMod
 		}
 	
 	}
+	//_root.nametagcontroller.m_NametagArray[x].m_Character.GetID()
 //https://pazuzucord.herokuapp.com/pazuzu/swlrp/rplist/update?playerId=123&nick=Bachelor&firstName=Peter&lastName=Bunting&playfieldId=1&players=1234,123456&clearInstance=true
 }

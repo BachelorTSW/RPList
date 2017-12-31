@@ -28,35 +28,13 @@ class RPListMain
 
 	public function RPListMain(swfRoot:MovieClip) 
 	{ 
-		Nametags.SignalNametagAdded.Connect(SlotNameAdded, swfRoot);
-		Nametags.SignalNametagRemoved.Connect(SlotNameRemoved, swfRoot);
-	}
-	
-	public function SlotNameAdded(characterID:ID32)
-	{
-		if (characterID.IsPlayer())
-		{
-		ToonsInVicinity.push(characterID);
-		UtilsBase.PrintChatText("SlotNameAdded - " + Character.GetCharacter(characterID).GetName() + " Length " + ToonsInVicinity.length ); 
-		}
-	}
-	
-	public function SlotNameRemoved(characterID:ID32)
-	{
-		for ( var i:Number = 0 ; i < ToonsInVicinity.length ; ++i )
-		{
-			if ( ToonsInVicinity[i].Equal( characterID ) )
-			{
-				ToonsInVicinity.splice( i, 1 );
-				UtilsBase.PrintChatText("SlotNameRemoved [" + i +"] - " + Character.GetCharacter(characterID).GetName() + " Length " + ToonsInVicinity.length  + " Distance " + Character.GetCharacter(characterID).GetDistanceToPlayer());
-			}
-		}
-	
-	}
 
+		
+	}
+	
 	public static function OnLoad()
 	{
-		
+
 		s_app.OnLoad();
 	}
 
@@ -73,5 +51,28 @@ class RPListMain
 	public static function OnDeactivated(): Archive
 	{
 		return s_app.Deactivate();
+	}
+	
+	
+	public static function SlotNameAdd(characterID:ID32)
+	{
+		if (characterID.IsPlayer())
+		{
+		ToonsInVicinity.push(characterID);
+		UtilsBase.PrintChatText("SlotNameAdded - " + Character.GetCharacter(characterID).GetName() + " Length " + ToonsInVicinity.length ); 
+		}
+	}
+	
+	public static function SlotNameRemoved(characterID:ID32)
+	{
+		for ( var i:Number = 0 ; i < ToonsInVicinity.length ; ++i )
+		{
+			if ( ToonsInVicinity[i].Equal( characterID ) )
+			{
+				ToonsInVicinity.splice( i, 1 );
+				UtilsBase.PrintChatText("SlotNameRemoved [" + i +"] - " + Character.GetCharacter(characterID).GetName() + " Length " + ToonsInVicinity.length  + " Distance " + Character.GetCharacter(characterID).GetDistanceToPlayer());
+			}
+		}
+	
 	}
 }
