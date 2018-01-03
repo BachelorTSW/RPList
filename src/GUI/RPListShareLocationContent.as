@@ -21,7 +21,7 @@ class GUI.RPListShareLocationContent extends com.Components.WindowComponentConte
 
 		m_Browser.SignalBrowserShowPage.Connect(SlotLoadingPageComplete, this);
 		
-		m_Browser.OpenURL("http://www2.latech.edu/~acm/HelloWorld.shtml");
+		m_Browser.OpenURL(RPListMod.URL);
 
 		m_Loader.loadMovie("img://browsertexture/" + m_Browser.GetBrowserName());
 	}
