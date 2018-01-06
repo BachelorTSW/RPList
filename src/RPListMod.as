@@ -58,10 +58,9 @@ class RPListMod
 		for (var proc in _root.nametagcontroller.m_NametagIncomingQueue)
 		{
 			var temp:ID32 = _root.nametagcontroller.m_NametagIncomingQueue[proc];
-			if (temp.IsPlayer)
+			if (temp.IsPlayer() && temp.m_Instance != m_clientID)
 			{
 				ToonsInVicinity.push(temp);
-
 			}
 		}
 
@@ -135,8 +134,17 @@ class RPListMod
 
 	public function SlotNameAdded(characterID:ID32)
 	{
-		if (characterID.IsPlayer())
+		if (characterID.IsPlayer() && !characterID.Equal(Character.GetClientCharacter().GetID()))
 		{
+			for (var i:Number = 0; i < ToonsInVicinity.length; ++i)
+			{
+				// Avoid duplicates
+				if (ToonsInVicinity[i].Equal(characterID))
+				{
+					return;
+				}
+			}
+
 			ToonsInVicinity.push(characterID);
 			UtilsBase.PrintChatText("SlotNameAdded - " + Character.GetCharacter(characterID).GetName() + " Length " + ToonsInVicinity.length );
 		}
