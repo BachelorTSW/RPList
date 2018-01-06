@@ -10,6 +10,7 @@ import com.GameInterface.Game.Character;
 class RPListMod
 {
 	private static var SHARE_LOCATION_INTERVAL = 1000 * 60 * 1;
+	private static var AGARTHA_PLAYFIELD_ID:Number = 5060;
 
 	private var _Flash: MovieClip;
 	private var m_swfRoot: MovieClip;
@@ -50,12 +51,16 @@ class RPListMod
 
 		var m_NameArray = _root.nametagcontroller;
 
-		for (var proc in _root.nametagcontroller.m_NametagIncomingQueue)
+		// Ignore for Agartha - everyone is in same instance
+		if (Character.GetClientCharacter().GetPlayfieldID() != AGARTHA_PLAYFIELD_ID)
 		{
-			var temp:ID32 = _root.nametagcontroller.m_NametagIncomingQueue[proc];
-			if (temp.IsPlayer() && temp.m_Instance != m_clientID)
+			for (var proc in _root.nametagcontroller.m_NametagIncomingQueue)
 			{
-				ToonsInVicinity.push(temp);
+				var temp:ID32 = _root.nametagcontroller.m_NametagIncomingQueue[proc];
+				if (temp.IsPlayer() && temp.m_Instance != m_clientID)
+				{
+					ToonsInVicinity.push(temp);
+				}
 			}
 		}
 
@@ -126,19 +131,23 @@ class RPListMod
 
 	public function SlotNameAdded(characterID:ID32)
 	{
-		if (characterID.IsPlayer() && !characterID.Equal(Character.GetClientCharacter().GetID()))
+		// Ignore for Agartha - everyone is in same instance
+		if (Character.GetClientCharacter().GetPlayfieldID() != AGARTHA_PLAYFIELD_ID)
 		{
-			for (var i:Number = 0; i < ToonsInVicinity.length; ++i)
+			if (characterID.IsPlayer() && !characterID.Equal(Character.GetClientCharacter().GetID()))
 			{
-				// Avoid duplicates
-				if (ToonsInVicinity[i].Equal(characterID))
+				for (var i:Number = 0; i < ToonsInVicinity.length; ++i)
 				{
-					return;
+					// Avoid duplicates
+					if (ToonsInVicinity[i].Equal(characterID))
+					{
+						return;
+					}
 				}
-			}
 
-			ToonsInVicinity.push(characterID);
-			UtilsBase.PrintChatText("SlotNameAdded - " + Character.GetCharacter(characterID).GetName() + " Length " + ToonsInVicinity.length );
+				ToonsInVicinity.push(characterID);
+				UtilsBase.PrintChatText("SlotNameAdded - " + Character.GetCharacter(characterID).GetName() + " Length " + ToonsInVicinity.length );
+			}
 		}
 	}
 
