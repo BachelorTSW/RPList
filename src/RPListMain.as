@@ -1,6 +1,5 @@
 import com.Utils.Archive;
 import com.GameInterface.UtilsBase;
-import com.GameInterface.Nametags;
 import com.Utils.ID32;
 import com.GameInterface.Game.Character;
 
