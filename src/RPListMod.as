@@ -20,7 +20,7 @@ class RPListMod
 	private var m_clientNick:String;
 	private var m_clientFName:String;
 	private var m_clientLName:String;
-	private var m_clientPlayfieldID:Number;
+	private var m_lastClientPlayfieldID:Number;
 	private var m_friendsContentInjector:FriendsContentInjector;
 
 	public static var ToonsInVicinity:Array;
@@ -49,7 +49,7 @@ class RPListMod
 		m_clientNick = Character.GetClientCharacter().GetName();
 		m_clientFName = Character.GetClientCharacter().GetFirstName();
 		m_clientLName = Character.GetClientCharacter().GetLastName();
-		m_clientPlayfieldID = Character.GetClientCharacter().GetPlayfieldID();
+		m_lastClientPlayfieldID = -1;
 
 		PlayersURL = "";
 
@@ -106,17 +106,31 @@ class RPListMod
 
 	function MakePlayersURL()
 	{
-		PlayersURL = "";
-		var TempToons;
-		TempToons = ToonsInVicinity;
+		var currentPlayfieldID:Number = Character.GetClientCharacter().GetPlayfieldID();
 
-		PlayersURL = TempToons[0].m_Instance;
-		for ( var i:Number = 1 ; i < TempToons.length ; ++i )
+		URL = "https://***REMOVED***/update?playerId=" + m_clientID +"&nick=" + m_clientNick + "&firstName=" + m_clientFName + "&lastName=" + m_clientLName + "&playfieldId=" + currentPlayfieldID;
+
+		if (currentPlayfieldID != m_lastClientPlayfieldID)
 		{
-			PlayersURL = PlayersURL + "," + TempToons[i].m_Instance;
+			// Player has changed zones since last update
+			URL = URL + "&clearInstance=true";
+			ToonsInVicinity = new Array();
 		}
-		URL = "https://***REMOVED***/update?playerId=" + m_clientID +"&nick=" + m_clientNick + "&firstName=" + m_clientFName + "&lastName=" + m_clientLName + "&playfieldId=" + m_clientPlayfieldID + "&players=" + PlayersURL + "&clearInstance=true";
+
+		if (ToonsInVicinity.length > 0)
+		{
+			URL = URL + "&players=" + ToonsInVicinity[0].m_Instance;
+			for ( var i:Number = 1 ; i < ToonsInVicinity.length ; ++i )
+			{
+				URL = URL + "," + ToonsInVicinity[i].m_Instance;
+			}
+
+			ToonsInVicinity = new Array();
+		}
+
 		UtilsBase.PrintChatText(URL);
+
+		m_lastClientPlayfieldID = currentPlayfieldID;
 	}
 
 	public function SlotNameAdded(characterID:ID32)
