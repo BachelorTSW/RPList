@@ -1,5 +1,4 @@
 import GUI.FriendsContentInjector;
-import GUI.RPListPlayerListWindow;
 import GUI.RPListShareLocationContent;
 import GUI.RPListShareLocationWindow;
 import com.Utils.Archive;
@@ -15,7 +14,6 @@ class RPListMod
 	private var _Flash: MovieClip;
 	private var m_swfRoot: MovieClip;
 	private var m_shareLocationWindow:RPListShareLocationWindow;
-	private var m_playerListWindow:RPListPlayerListWindow;
 	private var m_clientID:Number;
 	private var m_clientNick:String;
 	private var m_clientFName:String;
@@ -38,9 +36,6 @@ class RPListMod
 
 	public function OnLoad()
 	{
-
-		m_playerListWindow = new RPListPlayerListWindow(_Flash.attachMovie("RPListPlayerListWindow", "m_playerListWindow", _Flash.getNextHighestDepth()));
-
 		ToonsInVicinity = new Array();
 		Nametags.SignalNametagAdded.Connect(SlotNameAdded, this);
 		Nametags.SignalNametagRemoved.Connect(SlotNameRemoved, this);
@@ -98,9 +93,6 @@ class RPListMod
 		// Browser window for sharing player's location
 		Object.registerClass("RPListShareLocationWindow", RPListShareLocationWindow);
 		Object.registerClass("RPListShareLocationContent", RPListShareLocationContent);
-		// Browser window for displaying player list
-		Object.registerClass("RPListPlayerListWindow", GUI.RPListPlayerListWindow);
-		Object.registerClass("RPListPlayerListContent", GUI.RPListPlayerListContent);
 	}
 
 	function MakePlayersURL()
