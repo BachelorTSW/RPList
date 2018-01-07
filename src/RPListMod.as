@@ -1,6 +1,7 @@
 import GUI.FriendsContentInjector;
 import GUI.RPListShareLocationContent;
 import GUI.RPListShareLocationWindow;
+import GUI.RPListRoleplayersView;
 import com.Utils.Archive;
 import com.GameInterface.Nametags;
 import com.Utils.ID32;
@@ -66,9 +67,6 @@ class RPListMod
 
 		shareLocation();
 		setInterval(this, "shareLocation", SHARE_LOCATION_INTERVAL);
-
-		// Prepare tab injector for Friends window
-		m_friendsContentInjector = new FriendsContentInjector();
 	}
 
 	public function OnUnload()
@@ -98,6 +96,12 @@ class RPListMod
 		// Browser window for sharing player's location
 		Object.registerClass("RPListShareLocationWindow", RPListShareLocationWindow);
 		Object.registerClass("RPListShareLocationContent", RPListShareLocationContent);
+		
+		//m_RPListRoleplayersView = attachMovie("RPListRoleplayersView", "m_RPListRoleplayersView", getNextHighestDepth());
+		Object.registerClass("RPListRoleplayersView", RPListRoleplayersView);
+		
+		// Prepare tab injector for Friends window
+		m_friendsContentInjector = new FriendsContentInjector();
 	}
 
 	function MakePlayersURL()
