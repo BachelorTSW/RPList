@@ -119,10 +119,13 @@ class GUI.RPListFriendsContentInjector
 		var friendsView:FriendsView = friendsViewsContainer["m_FriendsView"];
 		var columnListView:MultiColumnListView = friendsView["m_List"];
 		var roleplayers:Array = new Array();
-		for (var i = 0 ; i < roleplayersDto.roleplayers.length ; ++i)
+		if (roleplayersDto != null)
 		{
-			var roleplayer:RPListRoleplayerDto = roleplayersDto.roleplayers[i];
-			roleplayers.push(createRoleplayerItem(roleplayer.id, roleplayer.nick, roleplayer.zone));
+			for (var i = 0 ; i < roleplayersDto.roleplayers.length ; ++i)
+			{
+				var roleplayer:RPListRoleplayerDto = roleplayersDto.roleplayers[i];
+				roleplayers.push(createRoleplayerItem(roleplayer.id, roleplayer.nick, roleplayer.zone));
+			}
 		}
 		columnListView.RemoveAllItems();
 		columnListView.AddItems(roleplayers);

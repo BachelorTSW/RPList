@@ -29,8 +29,13 @@ class GUI.RPListGetRoleplayersContent extends com.Components.WindowComponentCont
 	{
 		if (url.indexOf("list-mod-response") != -1)
 		{
-			var params = url.substr(url.indexOf("?")+1);
-			RPListGetRoleplayersWindow.SignalRoleplayersAcquired.Emit(new RPListRoleplayersListDto(params));
+			var dto:RPListRoleplayersListDto = null;
+			if (url.indexOf("?") > -1)
+			{
+				var params = url.substr(url.indexOf("?") + 1);
+				dto = new RPListRoleplayersListDto(params);
+			}
+			RPListGetRoleplayersWindow.SignalRoleplayersAcquired.Emit(dto);
 		}
 	}
 
