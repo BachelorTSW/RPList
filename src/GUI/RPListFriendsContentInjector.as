@@ -8,6 +8,7 @@ import com.Components.MultiColumnListView;
 import com.GameInterface.DistributedValue;
 import com.GameInterface.Friends;
 import com.GameInterface.Game.Character;
+import com.GameInterface.UtilsBase;
 import com.Utils.ID32;
 import dto.RPListRoleplayerDto;
 import dto.RPListRoleplayersListDto;
@@ -131,7 +132,10 @@ class GUI.RPListFriendsContentInjector
 
 	function createRoleplayerItem(id:ID32, zone:String):MCLItemDefault
 	{
+		UtilsBase.PrintChatText("Adding row for player id:" + id);
+		UtilsBase.PrintChatText("Adding row for player id:" + id.m_Instance);
 		var roleplayer:Character = Character.GetCharacter(id);
+		UtilsBase.PrintChatText("Character: " + roleplayer.GetFirstName());
 
 		var friendsItem:MCLItemDefault = new MCLItemDefault(id);
 

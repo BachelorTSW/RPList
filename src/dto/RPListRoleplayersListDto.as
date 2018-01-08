@@ -1,3 +1,4 @@
+import com.GameInterface.UtilsBase;
 import com.Utils.ID32;
 import dto.RPListRoleplayerDto;
 
@@ -9,28 +10,30 @@ class dto.RPListRoleplayersListDto
 	public function RPListRoleplayersListDto(httpResponseParams:String)
 	{
 		roleplayers = new Array();
-		parseParams(httpResponseParams, 0);
+		parseParams(httpResponseParams);
 	}
 
-	private function parseParams(httpResponseParams:String, startIndex:Number)
+	private function parseParams(httpResponseParams:String)
 	{
+		UtilsBase.PrintChatText("Parsing params: " + httpResponseParams);
 		var zoneNameDelimiter:Number = httpResponseParams.indexOf("=");
-		var zoneName:String = httpResponseParams.substr(startIndex, zoneNameDelimiter - startIndex);
+		var zoneName:String = httpResponseParams.substr(0, zoneNameDelimiter);
 		zoneName = unescape(zoneName);
-		var delimiterIndex = httpResponseParams.indexOf("&", startIndex);
+		var delimiterIndex = httpResponseParams.indexOf("&");
 		if (delimiterIndex == -1)
 		{
 			parseIds(zoneName, httpResponseParams.substr(zoneNameDelimiter + 1), 0);
 		}
 		else
 		{
-			parseIds(zoneName, httpResponseParams.substr(zoneNameDelimiter + 1, delimiterIndex - zoneNameDelimiter - 1));
-			parseParams(httpResponseParams, delimiterIndex + 1);
+			parseIds(zoneName, httpResponseParams.substr(zoneNameDelimiter + 1, delimiterIndex - zoneNameDelimiter - 1), 0);
+			parseParams(httpResponseParams.substr(delimiterIndex+1));
 		}
 	}
 
 	private function parseIds(zoneName:String, params:String, startIndex:Number)
 	{
+		UtilsBase.PrintChatText("Parsing ids from " + startIndex + " zone " + zoneName + ": " + params);
 		var roleplayer:RPListRoleplayerDto = new RPListRoleplayerDto();
 		roleplayer.zone = zoneName;
 
