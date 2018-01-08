@@ -3,7 +3,6 @@ import GUI.RPListGetRoleplayersContent;
 import GUI.RPListGetRoleplayersWindow;
 import GUI.RPListShareLocationContent;
 import GUI.RPListShareLocationWindow;
-import GUI.RPListRoleplayersView;
 import com.Utils.Archive;
 import com.GameInterface.Nametags;
 import com.Utils.ID32;
@@ -98,14 +97,11 @@ class RPListMod
 		// Browser window for sharing player's location
 		Object.registerClass("RPListShareLocationWindow", RPListShareLocationWindow);
 		Object.registerClass("RPListShareLocationContent", RPListShareLocationContent);
-		
+
 		// Browser window for getting list of roleplayers
 		Object.registerClass("RPListGetRoleplayersWindow", RPListGetRoleplayersWindow);
 		Object.registerClass("RPListGetRoleplayersContent", RPListGetRoleplayersContent);
-		
-		//m_RPListRoleplayersView = attachMovie("RPListRoleplayersView", "m_RPListRoleplayersView", getNextHighestDepth());
-		Object.registerClass("RPListRoleplayersView", RPListRoleplayersView);
-		
+
 		// Prepare tab injector for Friends window
 		m_friendsContentInjector = new RPListFriendsContentInjector(_Flash);
 	}
@@ -173,6 +169,5 @@ class RPListMod
 		}
 
 	}
-	//_root.nametagcontroller.m_NametagArray[x].m_Character.GetID()
-	//https://***REMOVED***/update?playerId=123&nick=Bachelor&firstName=Peter&lastName=Bunting&playfieldId=1&players=1234,123456&clearInstance=true
+
 }
