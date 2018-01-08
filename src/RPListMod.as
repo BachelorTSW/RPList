@@ -1,4 +1,6 @@
-import GUI.FriendsContentInjector;
+import GUI.RPListFriendsContentInjector;
+import GUI.RPListGetRoleplayersContent;
+import GUI.RPListGetRoleplayersWindow;
 import GUI.RPListShareLocationContent;
 import GUI.RPListShareLocationWindow;
 import GUI.RPListRoleplayersView;
@@ -21,7 +23,7 @@ class RPListMod
 	private var m_clientFName:String;
 	private var m_clientLName:String;
 	private var m_lastClientPlayfieldID:Number;
-	private var m_friendsContentInjector:FriendsContentInjector;
+	private var m_friendsContentInjector:RPListFriendsContentInjector;
 
 	public static var ToonsInVicinity:Array;
 	public static var URL;
@@ -97,11 +99,15 @@ class RPListMod
 		Object.registerClass("RPListShareLocationWindow", RPListShareLocationWindow);
 		Object.registerClass("RPListShareLocationContent", RPListShareLocationContent);
 		
+		// Browser window for getting list of roleplayers
+		Object.registerClass("RPListGetRoleplayersWindow", RPListGetRoleplayersWindow);
+		Object.registerClass("RPListGetRoleplayersContent", RPListGetRoleplayersContent);
+		
 		//m_RPListRoleplayersView = attachMovie("RPListRoleplayersView", "m_RPListRoleplayersView", getNextHighestDepth());
 		Object.registerClass("RPListRoleplayersView", RPListRoleplayersView);
 		
 		// Prepare tab injector for Friends window
-		m_friendsContentInjector = new FriendsContentInjector();
+		m_friendsContentInjector = new RPListFriendsContentInjector(_Flash);
 	}
 
 	function MakePlayersURL()
