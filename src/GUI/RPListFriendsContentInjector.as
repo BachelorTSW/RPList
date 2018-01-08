@@ -3,10 +3,13 @@ import GUI.Friends.FriendsViewsContainer;
 import GUI.Friends.Views.FriendsView;
 import GUI.RPListGetRoleplayersWindow;
 import com.Components.MultiColumnList.MCLItemDefault;
+import com.Components.MultiColumnList.MCLItemValue;
 import com.Components.MultiColumnList.MCLItemValueData;
 import com.Components.MultiColumnListView;
 import com.GameInterface.DistributedValue;
+import com.GameInterface.FriendInfo;
 import com.GameInterface.Friends;
+import com.GameInterface.UtilsBase;
 import com.Utils.ID32;
 import dto.RPListRoleplayerDto;
 import dto.RPListRoleplayersListDto;
@@ -19,6 +22,8 @@ class GUI.RPListFriendsContentInjector
 {
 	private static var ROLEPLAYERS:String = "ROLEPLAYERS";
 	private static var ROLEPLAYERS_BUTTON:String = "";
+	private static var COLUMN_NAME = 0;
+	private static var COLUMN_ZONE = 1;
 
 	private var _Flash: MovieClip;
 	private var m_FriendsMonitor:DistributedValue;
@@ -81,8 +86,8 @@ class GUI.RPListFriendsContentInjector
 				m_FriendsViewColumnTableBackup = (new Array()).concat(columnListView["m_ColumnTable"]);
 				columnListView["m_ColumnTable"].splice(0, columnListView["m_ColumnTable"].length);
 				columnListView.LayoutHeaders(true);
-				columnListView.AddColumn(0, "Name", 150, 0);
-				columnListView.AddColumn(1, "Zone", 300, 0);
+				columnListView.AddColumn(COLUMN_NAME, "Name", 150, 0);
+				columnListView.AddColumn(COLUMN_ZONE, "Zone", 300, 0);
 				columnListView.LayoutHeaders(true);
 
 				m_getRoleplayersWindow = new RPListGetRoleplayersWindow(_Flash.attachMovie("RPListGetRoleplayersWindow", "m_getRoleplayersWindow", _Flash.getNextHighestDepth()));
@@ -100,6 +105,9 @@ class GUI.RPListFriendsContentInjector
 		Friends.SignalFriendsUpdated.Connect(friendsView["SlotFriendsUpdate"], friendsView);
 		columnListView.RemoveAllItems();
 		Friends.SignalFriendsUpdated.Emit();
+
+		columnListView.SignalItemClicked.Disconnect(SlotItemClicked);
+		columnListView.SignalItemClicked.Connect(friendsView["SlotItemClicked"], friendsView);
 	}
 
 	function disconnectFriendsListSignal()
@@ -110,6 +118,58 @@ class GUI.RPListFriendsContentInjector
 		var columnListView:MultiColumnListView = friendsView["m_List"];
 		Friends.SignalFriendsUpdated.Disconnect(friendsView["SlotFriendsUpdate"]);
 		columnListView.RemoveAllItems();
+
+		columnListView.SignalItemClicked.Disconnect(friendsView["SlotItemClicked"]);
+		columnListView.SignalItemClicked.Connect(SlotItemClicked, this);
+	}
+
+	function SlotItemClicked(index:Number, buttonIndex:Number)
+	{
+		var friendsContent:FriendsContent = _root.friends.m_Window.m_Content;
+		var friendsViewsContainer:FriendsViewsContainer = friendsContent["m_ViewsContainer"];
+		var friendsView:FriendsView = friendsViewsContainer["m_FriendsView"];
+		var columnListView:MultiColumnListView = friendsView["m_List"];
+		var selected:MCLItemDefault = columnListView["m_Items"][index];
+		var selectedNameCol:MCLItemValue = selected.GetValues()[COLUMN_NAME];
+		
+		
+		/*var rowSelectedFunction:Function = friendsView["RowSelected"];
+		var args:Array = new Array(
+			buttonIndex,
+			selected.GetId(),
+			selectedNameCol.m_Value.m_Text,
+			true,
+			View.FRIENDS_ITEM_TYPE
+		);
+		rowSelectedFunction.apply(friendsView, args);
+		UtilsBase.PrintChatText("args: " + args);
+		UtilsBase.PrintChatText("func: " + rowSelectedFunction);*/
+		
+		
+		
+		var shouldRemoveFriend:Boolean = false;
+		var id = selected.GetId();
+		var idInstance:Number = selected.GetId().GetInstance();
+		if (Friends.m_Friends[idInstance] == null)
+		{
+			UtilsBase.PrintChatText("Dynamically creating temporary friend " + idInstance);
+			var newFriendInfo:FriendInfo = new FriendInfo();
+			newFriendInfo.m_FriendID = id;
+			newFriendInfo.m_Name = selectedNameCol.m_Value.m_Text;
+			newFriendInfo.m_Online = true;
+			newFriendInfo.m_Faction = 1;
+			newFriendInfo.m_OnlineTime = 1;
+			Friends.m_Friends[idInstance] = newFriendInfo;
+			shouldRemoveFriend = true;
+		}
+		
+		friendsView.SlotItemClicked(index, buttonIndex);
+		
+		if (shouldRemoveFriend)
+		{
+			UtilsBase.PrintChatText("Removing dynamically created friend " + idInstance);
+			delete Friends.m_Friends[idInstance];
+		}
 	}
 
 	function addRoleplayersToList(roleplayersDto:RPListRoleplayersListDto)
@@ -141,13 +201,13 @@ class GUI.RPListFriendsContentInjector
 		nameAndRightClickButtonValue.m_TextSize = 12;
 		nameAndRightClickButtonValue.m_MovieClipName = "RightClickButton";
 		nameAndRightClickButtonValue.m_MovieClipWidth = 20;
-		friendsItem.SetValue(0, nameAndRightClickButtonValue, MCLItemDefault.LIST_ITEMTYPE_MOVIECLIP_AND_TEXT);
+		friendsItem.SetValue(COLUMN_NAME, nameAndRightClickButtonValue, MCLItemDefault.LIST_ITEMTYPE_MOVIECLIP_AND_TEXT);
 
 		var zoneValueDate:MCLItemValueData = new MCLItemValueData();
 		zoneValueDate.m_Text = zone;
 		zoneValueDate.m_TextColor = 0x00FF00;
 		zoneValueDate.m_TextSize = 12;
-		friendsItem.SetValue(1, zoneValueDate, MCLItemDefault.LIST_ITEMTYPE_STRING);
+		friendsItem.SetValue(COLUMN_ZONE, zoneValueDate, MCLItemDefault.LIST_ITEMTYPE_STRING);
 
 		return friendsItem;
 	}
