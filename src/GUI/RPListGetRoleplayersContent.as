@@ -1,6 +1,5 @@
 import GUI.RPListGetRoleplayersWindow;
 import com.GameInterface.Browser.Browser;
-import com.GameInterface.UtilsBase;
 import dto.RPListRoleplayersListDto;
 
 class GUI.RPListGetRoleplayersContent extends com.Components.WindowComponentContent
@@ -31,7 +30,6 @@ class GUI.RPListGetRoleplayersContent extends com.Components.WindowComponentCont
 		if (url.indexOf("list-mod-response") != -1)
 		{
 			var params = url.substr(url.indexOf("?")+1);
-			UtilsBase.PrintChatText("RP List: " + params);
 			RPListGetRoleplayersWindow.SignalRoleplayersAcquired.Emit(new RPListRoleplayersListDto(params));
 		}
 	}
