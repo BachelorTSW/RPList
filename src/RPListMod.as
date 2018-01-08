@@ -23,6 +23,7 @@ class RPListMod
 	private var m_clientLName:String;
 	private var m_lastClientPlayfieldID:Number;
 	private var m_friendsContentInjector:RPListFriendsContentInjector;
+	private var m_zoneChanged:Boolean;
 
 	public static var ToonsInVicinity:Array;
 	public static var URL;
@@ -34,6 +35,7 @@ class RPListMod
 		m_swfRoot = swfRoot;
 		_Flash = MovieClip(swfRoot);
 
+		m_zoneChanged = true;
 		registerGuiElements();
 	}
 
@@ -41,7 +43,10 @@ class RPListMod
 	{
 		ToonsInVicinity = new Array();
 		Nametags.SignalNametagAdded.Connect(SlotNameAdded, this);
+		Nametags.SignalNametagUpdated.Connect(SlotNameAdded, this);
 		Nametags.SignalNametagRemoved.Connect(SlotNameRemoved, this);
+		Nametags.SignalAllNametagsRemoved.Connect(SlotAllNamesRemoved, this);
+		UtilsBase.SignalSplashScreenActivated.Connect(SlotSplashScreenActivated, this);
 
 		m_clientID = Character.GetClientCharacter().GetID().m_Instance;
 		m_clientNick = Character.GetClientCharacter().GetName();
@@ -112,25 +117,22 @@ class RPListMod
 
 		URL = "https://***REMOVED***/update?playerId=" + m_clientID +"&nick=" + m_clientNick + "&firstName=" + m_clientFName + "&lastName=" + m_clientLName + "&playfieldId=" + currentPlayfieldID;
 
-		if (currentPlayfieldID != m_lastClientPlayfieldID)
+		if (m_zoneChanged)
 		{
 			// Player has changed zones since last update
 			URL = URL + "&clearInstance=true";
-			ToonsInVicinity = new Array();
+			m_zoneChanged = false;
 		}
-
-		if (ToonsInVicinity.length > 0)
+		else if (ToonsInVicinity.length > 0)
 		{
 			URL = URL + "&players=" + ToonsInVicinity[0].m_Instance;
 			for ( var i:Number = 1 ; i < ToonsInVicinity.length ; ++i )
 			{
 				URL = URL + "," + ToonsInVicinity[i].m_Instance;
 			}
-
-			ToonsInVicinity = new Array();
 		}
-
-		UtilsBase.PrintChatText(URL);
+		
+		UtilsBase.PrintChatText("URL: " + URL);
 
 		m_lastClientPlayfieldID = currentPlayfieldID;
 	}
@@ -167,7 +169,18 @@ class RPListMod
 				UtilsBase.PrintChatText("SlotNameRemoved [" + i +"] - " + Character.GetCharacter(characterID).GetName() + " Length " + ToonsInVicinity.length  + " Distance " + Character.GetCharacter(characterID).GetDistanceToPlayer());
 			}
 		}
-
+	}
+	
+	public function SlotAllNamesRemoved()
+	{
+		ToonsInVicinity = new Array();
+		UtilsBase.PrintChatText("SlotAllNamesRemoved");
+	}
+	
+	public function SlotSplashScreenActivated()
+	{
+		m_zoneChanged = true;
+		UtilsBase.PrintChatText("SlotSplashScreenActivated");
 	}
 
 }

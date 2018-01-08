@@ -7,8 +7,6 @@ import com.Components.MultiColumnList.MCLItemValueData;
 import com.Components.MultiColumnListView;
 import com.GameInterface.DistributedValue;
 import com.GameInterface.Friends;
-import com.GameInterface.Game.Character;
-import com.GameInterface.UtilsBase;
 import com.Utils.ID32;
 import dto.RPListRoleplayerDto;
 import dto.RPListRoleplayersListDto;
@@ -124,23 +122,18 @@ class GUI.RPListFriendsContentInjector
 		for (var i = 0 ; i < roleplayersDto.roleplayers.length ; ++i)
 		{
 			var roleplayer:RPListRoleplayerDto = roleplayersDto.roleplayers[i];
-			roleplayers.push(createRoleplayerItem(roleplayer.id, roleplayer.zone));
+			roleplayers.push(createRoleplayerItem(roleplayer.id, roleplayer.nick, roleplayer.zone));
 		}
 		columnListView.RemoveAllItems();
 		columnListView.AddItems(roleplayers);
 	}
 
-	function createRoleplayerItem(id:ID32, zone:String):MCLItemDefault
+	function createRoleplayerItem(id:ID32, nick:String, zone:String):MCLItemDefault
 	{
-		UtilsBase.PrintChatText("Adding row for player id:" + id);
-		UtilsBase.PrintChatText("Adding row for player id:" + id.m_Instance);
-		var roleplayer:Character = Character.GetCharacter(id);
-		UtilsBase.PrintChatText("Character: " + roleplayer.GetFirstName());
-
 		var friendsItem:MCLItemDefault = new MCLItemDefault(id);
 
 		var nameAndRightClickButtonValue:MCLItemValueData = new MCLItemValueData();
-		nameAndRightClickButtonValue.m_Text = roleplayer.GetName();
+		nameAndRightClickButtonValue.m_Text = nick;
 		nameAndRightClickButtonValue.m_TextColor = 0x00FF00;
 		nameAndRightClickButtonValue.m_TextSize = 12;
 		nameAndRightClickButtonValue.m_MovieClipName = "RightClickButton";

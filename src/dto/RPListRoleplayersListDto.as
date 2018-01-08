@@ -1,4 +1,3 @@
-import com.GameInterface.UtilsBase;
 import com.Utils.ID32;
 import dto.RPListRoleplayerDto;
 
@@ -15,7 +14,6 @@ class dto.RPListRoleplayersListDto
 
 	private function parseParams(httpResponseParams:String)
 	{
-		UtilsBase.PrintChatText("Parsing params: " + httpResponseParams);
 		var zoneNameDelimiter:Number = httpResponseParams.indexOf("=");
 		var zoneName:String = httpResponseParams.substr(0, zoneNameDelimiter);
 		zoneName = unescape(zoneName);
@@ -33,7 +31,6 @@ class dto.RPListRoleplayersListDto
 
 	private function parseIds(zoneName:String, params:String, startIndex:Number)
 	{
-		UtilsBase.PrintChatText("Parsing ids from " + startIndex + " zone " + zoneName + ": " + params);
 		var roleplayer:RPListRoleplayerDto = new RPListRoleplayerDto();
 		roleplayer.zone = zoneName;
 
@@ -42,13 +39,17 @@ class dto.RPListRoleplayersListDto
 		if (delimiterIndex == -1)
 		{
 			idString = params.substr(startIndex);
-			roleplayer.id = new ID32(_global.Enums.TypeID.e_Type_GC_Character, Number(idString));
+			var nameDelimiter:Number = idString.indexOf("_");
+			roleplayer.id = new ID32(_global.Enums.TypeID.e_Type_GC_Character, Number(idString.substr(0, nameDelimiter)));
+			roleplayer.nick = unescape(idString.substr(nameDelimiter+1));
 			roleplayers.push(roleplayer);
 		}
 		else
 		{
 			idString = params.substr(startIndex, delimiterIndex - startIndex);
-			roleplayer.id = new ID32(_global.Enums.TypeID.e_Type_GC_Character, Number(idString));
+			var nameDelimiter:Number = idString.indexOf("_");
+			roleplayer.id = new ID32(_global.Enums.TypeID.e_Type_GC_Character, Number(idString.substr(0, nameDelimiter)));
+			roleplayer.nick = unescape(idString.substr(nameDelimiter+1));
 			roleplayers.push(roleplayer);
 			parseIds(zoneName, params, delimiterIndex + 1);
 		}
