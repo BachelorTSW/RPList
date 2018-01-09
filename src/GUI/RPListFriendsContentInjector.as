@@ -185,13 +185,12 @@ class GUI.RPListFriendsContentInjector
 	{
 		var friendsItem:MCLItemDefault = new MCLItemDefault(id);
 
-		var nameAndRightClickButtonValue:MCLItemValueData = new MCLItemValueData();
-		nameAndRightClickButtonValue.m_Text = nick;
-		nameAndRightClickButtonValue.m_TextColor = 0x00FF00;
-		nameAndRightClickButtonValue.m_TextSize = 12;
-		nameAndRightClickButtonValue.m_MovieClipName = "RightClickButton";
-		nameAndRightClickButtonValue.m_MovieClipWidth = 20;
-		friendsItem.SetValue(COLUMN_NAME, nameAndRightClickButtonValue, MCLItemDefault.LIST_ITEMTYPE_MOVIECLIP_AND_TEXT);
+		var nameValue:MCLItemValueData = new MCLItemValueData();
+		nameValue.m_Text = nick;
+		nameValue.m_TextColor = 0x00FF00;
+		nameValue.m_TextSize = 12;
+		nameValue.m_MovieClipWidth = 20;
+		friendsItem.SetValue(COLUMN_NAME, nameValue, MCLItemDefault.LIST_ITEMTYPE_STRING);
 
 		var zoneValueDate:MCLItemValueData = new MCLItemValueData();
 		zoneValueDate.m_Text = zone;

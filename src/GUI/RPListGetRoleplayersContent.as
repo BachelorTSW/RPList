@@ -55,6 +55,7 @@ class GUI.RPListGetRoleplayersContent extends com.Components.WindowComponentCont
 		errorMessageDto.zone = "Temporarily unavailable";
 		var dto:RPListRoleplayersListDto = new RPListRoleplayersListDto();
 		dto.roleplayers.push(errorMessageDto);
+		RPListGetRoleplayersWindow.SignalRoleplayersAcquired.Emit(errorMessageDto);
 	}
 
 }
