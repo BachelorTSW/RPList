@@ -9,7 +9,10 @@ class dto.RPListRoleplayersListDto
 	public function RPListRoleplayersListDto(httpResponseParams:String)
 	{
 		roleplayers = new Array();
-		parseParams(httpResponseParams);
+		if (httpResponseParams && httpResponseParams != null)
+		{
+			parseParams(httpResponseParams);
+		}
 	}
 
 	private function parseParams(httpResponseParams:String)

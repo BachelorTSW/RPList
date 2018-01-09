@@ -131,8 +131,6 @@ class RPListMod
 				URL = URL + "," + ToonsInVicinity[i].m_Instance;
 			}
 		}
-		
-		UtilsBase.PrintChatText("URL: " + URL);
 
 		m_lastClientPlayfieldID = currentPlayfieldID;
 	}
@@ -154,7 +152,6 @@ class RPListMod
 				}
 
 				ToonsInVicinity.push(characterID);
-				UtilsBase.PrintChatText("SlotNameAdded - " + Character.GetCharacter(characterID).GetName() + " Length " + ToonsInVicinity.length );
 			}
 		}
 	}
@@ -166,7 +163,6 @@ class RPListMod
 			if ( ToonsInVicinity[i].Equal( characterID ) )
 			{
 				ToonsInVicinity.splice( i, 1 );
-				UtilsBase.PrintChatText("SlotNameRemoved [" + i +"] - " + Character.GetCharacter(characterID).GetName() + " Length " + ToonsInVicinity.length  + " Distance " + Character.GetCharacter(characterID).GetDistanceToPlayer());
 			}
 		}
 	}
@@ -174,13 +170,11 @@ class RPListMod
 	public function SlotAllNamesRemoved()
 	{
 		ToonsInVicinity = new Array();
-		UtilsBase.PrintChatText("SlotAllNamesRemoved");
 	}
 	
 	public function SlotSplashScreenActivated()
 	{
 		m_zoneChanged = true;
-		UtilsBase.PrintChatText("SlotSplashScreenActivated");
 	}
 
 }

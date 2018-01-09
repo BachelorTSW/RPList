@@ -9,7 +9,7 @@ import com.Components.MultiColumnListView;
 import com.GameInterface.DistributedValue;
 import com.GameInterface.FriendInfo;
 import com.GameInterface.Friends;
-import com.GameInterface.UtilsBase;
+import com.GameInterface.Game.Character;
 import com.Utils.ID32;
 import dto.RPListRoleplayerDto;
 import dto.RPListRoleplayersListDto;
@@ -121,6 +121,8 @@ class GUI.RPListFriendsContentInjector
 
 		columnListView.SignalItemClicked.Disconnect(friendsView["SlotItemClicked"]);
 		columnListView.SignalItemClicked.Connect(SlotItemClicked, this);
+
+		friendsView["m_Header"].m_Title.text = "Roleplayers (loading)";
 	}
 
 	function SlotItemClicked(index:Number, buttonIndex:Number)
@@ -131,28 +133,16 @@ class GUI.RPListFriendsContentInjector
 		var columnListView:MultiColumnListView = friendsView["m_List"];
 		var selected:MCLItemDefault = columnListView["m_Items"][index];
 		var selectedNameCol:MCLItemValue = selected.GetValues()[COLUMN_NAME];
-		
-		
-		/*var rowSelectedFunction:Function = friendsView["RowSelected"];
-		var args:Array = new Array(
-			buttonIndex,
-			selected.GetId(),
-			selectedNameCol.m_Value.m_Text,
-			true,
-			View.FRIENDS_ITEM_TYPE
-		);
-		rowSelectedFunction.apply(friendsView, args);
-		UtilsBase.PrintChatText("args: " + args);
-		UtilsBase.PrintChatText("func: " + rowSelectedFunction);*/
-		
-		
-		
+
 		var shouldRemoveFriend:Boolean = false;
 		var id = selected.GetId();
+		if (Character.GetClientCharacter().GetID().Equal(id))
+		{
+			return;
+		}
 		var idInstance:Number = selected.GetId().GetInstance();
 		if (Friends.m_Friends[idInstance] == null)
 		{
-			UtilsBase.PrintChatText("Dynamically creating temporary friend " + idInstance);
 			var newFriendInfo:FriendInfo = new FriendInfo();
 			newFriendInfo.m_FriendID = id;
 			newFriendInfo.m_Name = selectedNameCol.m_Value.m_Text;
@@ -162,12 +152,11 @@ class GUI.RPListFriendsContentInjector
 			Friends.m_Friends[idInstance] = newFriendInfo;
 			shouldRemoveFriend = true;
 		}
-		
+
 		friendsView.SlotItemClicked(index, buttonIndex);
-		
+
 		if (shouldRemoveFriend)
 		{
-			UtilsBase.PrintChatText("Removing dynamically created friend " + idInstance);
 			delete Friends.m_Friends[idInstance];
 		}
 	}
@@ -189,6 +178,7 @@ class GUI.RPListFriendsContentInjector
 		}
 		columnListView.RemoveAllItems();
 		columnListView.AddItems(roleplayers);
+		friendsView["m_Header"].m_Title.text = "Roleplayers (" + roleplayersDto.roleplayers.length + ")";
 	}
 
 	function createRoleplayerItem(id:ID32, nick:String, zone:String):MCLItemDefault
