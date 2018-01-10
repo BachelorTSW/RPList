@@ -201,4 +201,13 @@ class GUI.RPListFriendsContentInjector
 		return friendsItem;
 	}
 
+	function OnUnload()
+	{
+		var friendsContent:FriendsContent = _root.friends.m_Window.m_Content;
+		var friendsViewsContainer:FriendsViewsContainer = friendsContent["m_ViewsContainer"];
+		var friendsView:FriendsView = friendsViewsContainer["m_FriendsView"];
+		var columnListView:MultiColumnListView = friendsView["m_List"];
+		m_FriendsMonitor.SignalChanged.Disconnect(onFriendsWindowStateChange);
+		columnListView.SignalItemClicked.Connect(SlotItemClicked, this);
+	}
 }

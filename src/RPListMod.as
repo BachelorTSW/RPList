@@ -3,10 +3,10 @@ import GUI.RPListGetRoleplayersContent;
 import GUI.RPListGetRoleplayersWindow;
 import GUI.RPListShareLocationContent;
 import GUI.RPListShareLocationWindow;
+import com.GameInterface.UtilsBase;
 import com.Utils.Archive;
 import com.GameInterface.Nametags;
 import com.Utils.ID32;
-import com.GameInterface.UtilsBase;
 import com.GameInterface.Game.Character;
 
 class RPListMod
@@ -24,6 +24,7 @@ class RPListMod
 	private var m_lastClientPlayfieldID:Number;
 	private var m_friendsContentInjector:RPListFriendsContentInjector;
 	private var m_zoneChanged:Boolean;
+	private var m_shareLocationInterval:Number;
 
 	public static var ToonsInVicinity:Array;
 	public static var URL;
@@ -72,11 +73,19 @@ class RPListMod
 		}
 
 		shareLocation();
-		setInterval(this, "shareLocation", SHARE_LOCATION_INTERVAL);
+		m_shareLocationInterval = setInterval(this, "shareLocation", SHARE_LOCATION_INTERVAL);
 	}
 
 	public function OnUnload()
 	{
+		clearInterval(m_shareLocationInterval);
+		Nametags.SignalNametagAdded.Disconnect(SlotNameAdded);
+		Nametags.SignalNametagUpdated.Disconnect(SlotNameAdded);
+		Nametags.SignalNametagRemoved.Disconnect(SlotNameRemoved);
+		Nametags.SignalAllNametagsRemoved.Disconnect(SlotAllNamesRemoved);
+		UtilsBase.SignalSplashScreenActivated.Disconnect(SlotSplashScreenActivated);
+		m_friendsContentInjector.OnUnload();
+		delete m_friendsContentInjector;
 	}
 
 	public function Activate(config: Archive)
@@ -166,12 +175,12 @@ class RPListMod
 			}
 		}
 	}
-	
+
 	public function SlotAllNamesRemoved()
 	{
 		ToonsInVicinity = new Array();
 	}
-	
+
 	public function SlotSplashScreenActivated()
 	{
 		m_zoneChanged = true;
