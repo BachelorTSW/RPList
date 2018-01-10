@@ -178,7 +178,7 @@ class GUI.RPListFriendsContentInjector
 		}
 		columnListView.RemoveAllItems();
 		columnListView.AddItems(roleplayers);
-		friendsView["m_Header"].m_Title.text = "Roleplayers (" + roleplayersDto.roleplayers.length + ")";
+		friendsView["m_Header"].m_Title.text = "Roleplayers (" + roleplayers.length + ")";
 	}
 
 	function createRoleplayerItem(id:ID32, nick:String, zone:String):MCLItemDefault
