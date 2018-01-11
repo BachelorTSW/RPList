@@ -10,7 +10,6 @@ import com.GameInterface.DistributedValue;
 import com.GameInterface.FriendInfo;
 import com.GameInterface.Friends;
 import com.GameInterface.Game.Character;
-import com.Utils.ID32;
 import dto.RPListRoleplayerDto;
 import dto.RPListRoleplayersListDto;
 import mx.utils.Delegate;
@@ -24,6 +23,7 @@ class GUI.RPListFriendsContentInjector
 	private static var ROLEPLAYERS_BUTTON:String = "";
 	private static var COLUMN_NAME = 0;
 	private static var COLUMN_ZONE = 1;
+	private static var COLUMN_AUTO_MEETUP = 2;
 
 	private var _Flash: MovieClip;
 	private var m_FriendsMonitor:DistributedValue;
@@ -87,7 +87,8 @@ class GUI.RPListFriendsContentInjector
 				columnListView["m_ColumnTable"].splice(0, columnListView["m_ColumnTable"].length);
 				columnListView.LayoutHeaders(true);
 				columnListView.AddColumn(COLUMN_NAME, "Name", 150, 0);
-				columnListView.AddColumn(COLUMN_ZONE, "Zone", 300, 0);
+				columnListView.AddColumn(COLUMN_ZONE, "Zone", 500, 0);
+				columnListView.AddColumn(COLUMN_AUTO_MEETUP, "Auto Meetup", 150, 0);
 				columnListView.LayoutHeaders(true);
 
 				m_getRoleplayersWindow = new RPListGetRoleplayersWindow(_Flash.attachMovie("RPListGetRoleplayersWindow", "m_getRoleplayersWindow", _Flash.getNextHighestDepth()));
@@ -173,7 +174,7 @@ class GUI.RPListFriendsContentInjector
 			for (var i = 0 ; i < roleplayersDto.roleplayers.length ; ++i)
 			{
 				var roleplayer:RPListRoleplayerDto = roleplayersDto.roleplayers[i];
-				roleplayers.push(createRoleplayerItem(roleplayer.id, roleplayer.nick, roleplayer.zone));
+				roleplayers.push(createRoleplayerItem(roleplayer));
 			}
 		}
 		columnListView.RemoveAllItems();
@@ -181,22 +182,40 @@ class GUI.RPListFriendsContentInjector
 		friendsView["m_Header"].m_Title.text = "Roleplayers (" + roleplayers.length + ")";
 	}
 
-	function createRoleplayerItem(id:ID32, nick:String, zone:String):MCLItemDefault
+	function createRoleplayerItem(roleplayer:RPListRoleplayerDto):MCLItemDefault
 	{
-		var friendsItem:MCLItemDefault = new MCLItemDefault(id);
+		var friendsItem:MCLItemDefault = new MCLItemDefault(roleplayer.id);
 
 		var nameValue:MCLItemValueData = new MCLItemValueData();
-		nameValue.m_Text = nick;
+		nameValue.m_Text = roleplayer.nick;
 		nameValue.m_TextColor = 0x00FF00;
 		nameValue.m_TextSize = 12;
 		nameValue.m_MovieClipWidth = 20;
 		friendsItem.SetValue(COLUMN_NAME, nameValue, MCLItemDefault.LIST_ITEMTYPE_STRING);
 
-		var zoneValueDate:MCLItemValueData = new MCLItemValueData();
-		zoneValueDate.m_Text = zone;
-		zoneValueDate.m_TextColor = 0x00FF00;
-		zoneValueDate.m_TextSize = 12;
-		friendsItem.SetValue(COLUMN_ZONE, zoneValueDate, MCLItemDefault.LIST_ITEMTYPE_STRING);
+		var zoneValue:MCLItemValueData = new MCLItemValueData();
+		zoneValue.m_Text = roleplayer.zone;
+		zoneValue.m_TextColor = 0x00FF00;
+		zoneValue.m_TextSize = 12;
+		friendsItem.SetValue(COLUMN_ZONE, zoneValue, MCLItemDefault.LIST_ITEMTYPE_STRING);
+		
+		var autoMeetupValue:MCLItemValueData = new MCLItemValueData();
+		autoMeetupValue.m_TextColor = 0xFF0000;
+		switch (roleplayer.autoMeetup)
+		{
+			case RPListRoleplayerDto.AUTOMEETUP_OFF:
+				autoMeetupValue.m_Text = "No";
+				break;
+			case RPListRoleplayerDto.AUTOMEETUP_ON:
+				autoMeetupValue.m_Text = "Yes";
+				autoMeetupValue.m_TextColor = 0x00FF00;
+				break;
+			default:
+				autoMeetupValue.m_Text = "Unknown";
+				break;
+		}
+		autoMeetupValue.m_TextSize = 12;
+		friendsItem.SetValue(COLUMN_AUTO_MEETUP, autoMeetupValue, MCLItemDefault.LIST_ITEMTYPE_STRING);
 
 		return friendsItem;
 	}

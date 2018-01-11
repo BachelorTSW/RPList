@@ -3,6 +3,7 @@ import GUI.RPListGetRoleplayersContent;
 import GUI.RPListGetRoleplayersWindow;
 import GUI.RPListShareLocationContent;
 import GUI.RPListShareLocationWindow;
+import com.GameInterface.DistributedValue;
 import com.GameInterface.UtilsBase;
 import com.Utils.Archive;
 import com.GameInterface.Nametags;
@@ -124,7 +125,11 @@ class RPListMod
 	{
 		var currentPlayfieldID:Number = Character.GetClientCharacter().GetPlayfieldID();
 
-		URL = "https://***REMOVED***/update?playerId=" + m_clientID +"&nick=" + m_clientNick + "&firstName=" + m_clientFName + "&lastName=" + m_clientLName + "&playfieldId=" + currentPlayfieldID;
+		var autoMeetup:Boolean = DistributedValue.GetDValue("MeetUpPrompts");
+
+		URL = "https://***REMOVED***/update?playerId=" + m_clientID
+			  + "&nick=" + m_clientNick + "&firstName=" + m_clientFName + "&lastName=" + m_clientLName
+			  + "&playfieldId=" + currentPlayfieldID + "&autoMeetup=" + autoMeetup;
 
 		if (m_zoneChanged)
 		{
@@ -140,7 +145,6 @@ class RPListMod
 				URL = URL + "," + ToonsInVicinity[i].m_Instance;
 			}
 		}
-
 		m_lastClientPlayfieldID = currentPlayfieldID;
 	}
 

@@ -9,7 +9,7 @@ class GUI.RPListGetRoleplayersContent extends com.Components.WindowComponentCont
 {
 	private var m_Loader:gfx.controls.UILoader;
 	private var m_Browser:Browser;
-	
+
 	private var m_loadTimeout:Number;
 
 	public function RPListGetRoleplayersContent()
@@ -26,7 +26,7 @@ class GUI.RPListGetRoleplayersContent extends com.Components.WindowComponentCont
 		m_Browser.SignalStartLoadingURL.Connect(SlotLoadingPageStart, this);
 
 		m_loadTimeout = setTimeout(Delegate.create(this, loadingTimedOut), 5000);
-		
+
 		m_Browser.OpenURL("https://***REMOVED***/list-mod");
 
 		m_Loader.loadMovie("img://browsertexture/" + m_Browser.GetBrowserName());
@@ -46,7 +46,7 @@ class GUI.RPListGetRoleplayersContent extends com.Components.WindowComponentCont
 			RPListGetRoleplayersWindow.SignalRoleplayersAcquired.Emit(dto);
 		}
 	}
-	
+
 	private function loadingTimedOut()
 	{
 		var errorMessageDto:RPListRoleplayerDto = new RPListRoleplayerDto();
