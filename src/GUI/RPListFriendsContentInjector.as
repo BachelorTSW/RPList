@@ -96,6 +96,8 @@ class GUI.RPListFriendsContentInjector
 			columnListView.LayoutHeaders(true);
 			columnListView["m_ColumnTable"] = columnListView["m_ColumnTable"].concat(m_FriendsViewColumnTableBackup);
 			columnListView.LayoutHeaders(true);
+			friendsContent["m_AddButton"].visible = true;
+			friendsContent["m_ToggleShowAllOnlineButton"].visible = true;
 			reconnectFriendsListSignal();
 		}
 		else
@@ -114,6 +116,8 @@ class GUI.RPListFriendsContentInjector
 				columnListView.AddColumn(COLUMN_AUTO_MEETUP, "Auto Meetup", 150, 0);
 				columnListView.LayoutHeaders(true);
 				columnListView.AutoSizeColumns();
+				friendsContent["m_AddButton"].visible = false;
+				friendsContent["m_ToggleShowAllOnlineButton"].visible = false;
 
 				m_getRoleplayersWindow = new RPListGetRoleplayersWindow(_Flash.attachMovie("RPListGetRoleplayersWindow", "m_getRoleplayersWindow", _Flash.getNextHighestDepth()));
 				RPListGetRoleplayersWindow.SignalRoleplayersAcquired.Connect(addRoleplayersToList, this);
