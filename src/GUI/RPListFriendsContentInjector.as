@@ -113,6 +113,7 @@ class GUI.RPListFriendsContentInjector
 				columnListView.AddColumn(COLUMN_ZONE, "Zone", 500, 0);
 				columnListView.AddColumn(COLUMN_AUTO_MEETUP, "Auto Meetup", 150, 0);
 				columnListView.LayoutHeaders(true);
+				columnListView.AutoSizeColumns();
 
 				m_getRoleplayersWindow = new RPListGetRoleplayersWindow(_Flash.attachMovie("RPListGetRoleplayersWindow", "m_getRoleplayersWindow", _Flash.getNextHighestDepth()));
 				RPListGetRoleplayersWindow.SignalRoleplayersAcquired.Connect(addRoleplayersToList, this);
