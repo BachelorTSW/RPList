@@ -12,6 +12,7 @@ import com.GameInterface.Friends;
 import com.GameInterface.Game.Character;
 import dto.RPListRoleplayerDto;
 import dto.RPListRoleplayersListDto;
+import gfx.controls.ButtonBar;
 import mx.utils.Delegate;
 
 /**
@@ -45,19 +46,41 @@ class GUI.RPListFriendsContentInjector
 		if (isOpen)
 		{
 			// Give the UI time to finish configuring before injecting the tab
-			setTimeout(Delegate.create(this, injectTabs), 500);
+			// Can be safely called repeatedly
+			for (var waitTime:Number = 200; waitTime <= 2000; waitTime = waitTime + 200)
+			{
+				setTimeout(Delegate.create(this, injectTabs), waitTime);
+			}
 		}
 	}
 
 	function injectTabs()
 	{
 		var friendsContent:FriendsContent = _root.friends.m_Window.m_Content;
-		var friendsViewsContainer:FriendsViewsContainer = friendsContent["m_ViewsContainer"];
-
-		friendsContent["m_TabButtonArray"].push({label: ROLEPLAYERS, view: FriendsViewsContainer.FRIENDS_VIEW, responseLabel: ROLEPLAYERS_BUTTON});
-		friendsContent["m_ButtonBar"].invalidateData()
-
-		friendsContent["m_ButtonBar"].addEventListener("change", this, "onTabChange");
+		var buttonBar:ButtonBar = friendsContent["m_ButtonBar"];
+		var tabButtonArray:Array = friendsContent["m_TabButtonArray"];
+		
+		if (buttonBar == undefined || buttonBar == null || !buttonBar.hasEventListener("focusIn"))
+		{
+			return;
+		}
+		
+		var shouldAddButton:Boolean = true;
+		for (var i:Number = 0; i < tabButtonArray.length; ++i)
+		{
+			if (tabButtonArray[i].label == ROLEPLAYERS)
+			{
+				shouldAddButton = false;
+				break;
+			}
+		}
+		if (shouldAddButton)
+		{
+			friendsContent["m_TabButtonArray"].push({label: ROLEPLAYERS, view: FriendsViewsContainer.FRIENDS_VIEW, responseLabel: ROLEPLAYERS_BUTTON});
+			buttonBar.addEventListener("change", this, "onTabChange");
+		}
+		
+		buttonBar.invalidateData()		
 	}
 
 	function onTabChange(event:Object)
