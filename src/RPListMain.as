@@ -3,12 +3,10 @@ import com.Utils.Archive;
 class RPListMain
 {
 	private static var s_app: RPListMod;
-	private static var t_app: RPListMain;
 
 	public static function main(swfRoot:MovieClip):Void
 	{		
 		s_app = new RPListMod(swfRoot);
-		t_app = new RPListMain(swfRoot);
 		
 		swfRoot.onLoad = OnLoad;
 		swfRoot.OnUnload = OnUnload;
@@ -17,14 +15,11 @@ class RPListMain
 	}
 
 	public function RPListMain(swfRoot:MovieClip) 
-	{ 
-
-		
+	{
 	}
 	
 	public static function OnLoad()
 	{
-
 		s_app.OnLoad();
 	}
 
@@ -32,7 +27,6 @@ class RPListMain
 	{
 		s_app.OnUnload();
 		delete s_app;
-		delete t_app;
 	}
 
 	public static function OnActivated(config: Archive)

@@ -21,7 +21,8 @@ import mx.utils.Delegate;
 class GUI.RPListFriendsContentInjector
 {
 	private static var ROLEPLAYERS:String = "ROLEPLAYERS";
-	private static var ROLEPLAYERS_BUTTON:String = "";
+	private static var ROLEPLAYERS_BUTTON_SHOW:String = "GO VISIBLE";
+	private static var ROLEPLAYERS_BUTTON_HIDE:String = "GO INVISIBLE";
 	private static var COLUMN_NAME = 0;
 	private static var COLUMN_ZONE = 1;
 	private static var COLUMN_AUTO_MEETUP = 2;
@@ -32,10 +33,12 @@ class GUI.RPListFriendsContentInjector
 	private var m_FriendsViewColumnTableBackup:Array;
 
 	private var m_getRoleplayersWindow:RPListGetRoleplayersWindow;
+	private var m_shouldReconnectAddButton:Boolean;
 
 	public function RPListFriendsContentInjector(flash:MovieClip)
 	{
 		this._Flash = flash;
+		m_shouldReconnectAddButton = false;
 		m_FriendsMonitor = DistributedValue.Create("friends_window");
 		m_FriendsMonitor.SignalChanged.Connect(onFriendsWindowStateChange, this);
 	}
@@ -59,12 +62,12 @@ class GUI.RPListFriendsContentInjector
 		var friendsContent:FriendsContent = _root.friends.m_Window.m_Content;
 		var buttonBar:ButtonBar = friendsContent["m_ButtonBar"];
 		var tabButtonArray:Array = friendsContent["m_TabButtonArray"];
-		
+
 		if (buttonBar == undefined || buttonBar == null || !buttonBar.hasEventListener("focusIn"))
 		{
 			return;
 		}
-		
+
 		var shouldAddButton:Boolean = true;
 		for (var i:Number = 0; i < tabButtonArray.length; ++i)
 		{
@@ -76,11 +79,11 @@ class GUI.RPListFriendsContentInjector
 		}
 		if (shouldAddButton)
 		{
-			friendsContent["m_TabButtonArray"].push({label: ROLEPLAYERS, view: FriendsViewsContainer.FRIENDS_VIEW, responseLabel: ROLEPLAYERS_BUTTON});
+			friendsContent["m_TabButtonArray"].push({label: ROLEPLAYERS, view: FriendsViewsContainer.FRIENDS_VIEW, responseLabel: getIncognitoButtonLabel()});
 			buttonBar.addEventListener("change", this, "onTabChange");
 		}
-		
-		buttonBar.invalidateData()		
+
+		buttonBar.invalidateData()
 	}
 
 	function onTabChange(event:Object)
@@ -88,41 +91,61 @@ class GUI.RPListFriendsContentInjector
 		var friendsContent:FriendsContent = _root.friends.m_Window.m_Content;
 		var friendsViewsContainer:FriendsViewsContainer = friendsContent["m_ViewsContainer"];
 		var columnListView:MultiColumnListView = friendsViewsContainer["m_FriendsView"]["m_List"];
+		var selectedTab = friendsContent["m_TabButtonArray"][event.index].label;
 
-		if (event.index == 0)
+		// Show the Show Online/Offile button by default
+		friendsContent["m_ToggleShowAllOnlineButton"].visible = true;
+		
+		if (selectedTab == ROLEPLAYERS)
 		{
-			// Friends tab selected - return the view to original state
+			// Roleplayers tab selected
+			disconnectFriendsListSignal();
+
+			// Modify columns of the Friends view
+			m_FriendsViewColumnTableBackup = (new Array()).concat(columnListView["m_ColumnTable"]);
 			columnListView["m_ColumnTable"].splice(0, columnListView["m_ColumnTable"].length);
 			columnListView.LayoutHeaders(true);
-			columnListView["m_ColumnTable"] = columnListView["m_ColumnTable"].concat(m_FriendsViewColumnTableBackup);
+			columnListView.AddColumn(COLUMN_NAME, "Name", 150, 0);
+			columnListView.AddColumn(COLUMN_ZONE, "Zone", 500, 0);
+			columnListView.AddColumn(COLUMN_AUTO_MEETUP, "Auto Meetup", 150, 0);
 			columnListView.LayoutHeaders(true);
-			friendsContent["m_AddButton"].visible = true;
-			friendsContent["m_ToggleShowAllOnlineButton"].visible = true;
-			reconnectFriendsListSignal();
+			columnListView.AutoSizeColumns();
+			// Hide the buttons
+			friendsContent["m_ToggleShowAllOnlineButton"].visible = false;
+			
+			// Convert the Add Friend button to Incognito button
+			friendsContent["m_AddButton"].removeEventListener("click", friendsContent, "ViewResponseButtonClickEventHandler");
+			friendsContent["m_AddButton"].addEventListener("click", this, "SlotIncognitoButtonClicked");
+			m_shouldReconnectAddButton = true;
+
+			refreshList();
 		}
 		else
 		{
-			var selectedTab = friendsContent["m_TabButtonArray"][event.index].label;
-			if (selectedTab == ROLEPLAYERS)
+			// Reconnect the Add Friend button listener
+			if (m_shouldReconnectAddButton)
 			{
-				disconnectFriendsListSignal();
-
-				// Roleplayers tab selected - modify columns of the Friends view
-				m_FriendsViewColumnTableBackup = (new Array()).concat(columnListView["m_ColumnTable"]);
+				friendsContent["m_AddButton"].removeEventListener("click", this, "SlotIncognitoButtonClicked");
+				friendsContent["m_AddButton"].addEventListener("click", friendsContent, "ViewResponseButtonClickEventHandler");
+				m_shouldReconnectAddButton = false;
+			}
+			
+			if (event.index == 0)
+			{
+				// Friends tab selected - return the view to original state
 				columnListView["m_ColumnTable"].splice(0, columnListView["m_ColumnTable"].length);
 				columnListView.LayoutHeaders(true);
-				columnListView.AddColumn(COLUMN_NAME, "Name", 150, 0);
-				columnListView.AddColumn(COLUMN_ZONE, "Zone", 500, 0);
-				columnListView.AddColumn(COLUMN_AUTO_MEETUP, "Auto Meetup", 150, 0);
+				columnListView["m_ColumnTable"] = columnListView["m_ColumnTable"].concat(m_FriendsViewColumnTableBackup);
 				columnListView.LayoutHeaders(true);
-				columnListView.AutoSizeColumns();
-				friendsContent["m_AddButton"].visible = false;
-				friendsContent["m_ToggleShowAllOnlineButton"].visible = false;
-
-				m_getRoleplayersWindow = new RPListGetRoleplayersWindow(_Flash.attachMovie("RPListGetRoleplayersWindow", "m_getRoleplayersWindow", _Flash.getNextHighestDepth()));
-				RPListGetRoleplayersWindow.SignalRoleplayersAcquired.Connect(addRoleplayersToList, this);
+				reconnectFriendsListSignal();
 			}
 		}
+	}
+	
+	function refreshList()
+	{
+		m_getRoleplayersWindow = new RPListGetRoleplayersWindow(_Flash.attachMovie("RPListGetRoleplayersWindow", "m_getRoleplayersWindow", _Flash.getNextHighestDepth()));
+		RPListGetRoleplayersWindow.SignalRoleplayersAcquired.Connect(addRoleplayersToList, this);
 	}
 
 	function reconnectFriendsListSignal()
@@ -226,7 +249,7 @@ class GUI.RPListFriendsContentInjector
 		zoneValue.m_TextColor = 0x00FF00;
 		zoneValue.m_TextSize = 12;
 		friendsItem.SetValue(COLUMN_ZONE, zoneValue, MCLItemDefault.LIST_ITEMTYPE_STRING);
-		
+
 		var autoMeetupValue:MCLItemValueData = new MCLItemValueData();
 		autoMeetupValue.m_TextColor = 0xFF0000;
 		switch (roleplayer.autoMeetup)
@@ -248,6 +271,30 @@ class GUI.RPListFriendsContentInjector
 		return friendsItem;
 	}
 
+	function SlotIncognitoButtonClicked()
+	{
+		var friendsContent:FriendsContent = _root.friends.m_Window.m_Content;
+		var friendsViewsContainer:FriendsViewsContainer = friendsContent["m_ViewsContainer"];
+		
+		var modInstance:RPListMod = RPListMod.GetInstance();
+		modInstance.setIncognito(!modInstance.isIncognito());
+		friendsContent["m_AddButton"].label = getIncognitoButtonLabel();
+		
+		setTimeout(Delegate.create(this, refreshList), 500);
+	}
+	
+	function getIncognitoButtonLabel()
+	{
+		if (RPListMod.GetInstance().isIncognito())
+		{
+			return ROLEPLAYERS_BUTTON_SHOW;
+		}
+		else
+		{
+			return ROLEPLAYERS_BUTTON_HIDE;
+		}
+	}
+	
 	function OnUnload()
 	{
 		var friendsContent:FriendsContent = _root.friends.m_Window.m_Content;

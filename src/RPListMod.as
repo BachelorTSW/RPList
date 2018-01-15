@@ -9,11 +9,16 @@ import com.Utils.Archive;
 import com.GameInterface.Nametags;
 import com.Utils.ID32;
 import com.GameInterface.Game.Character;
+import mx.utils.Delegate;
 
 class RPListMod
 {
+	private static var m_instance:RPListMod;
+	
 	private static var SHARE_LOCATION_INTERVAL = 1000 * 60 * 1;
 	private static var AGARTHA_PLAYFIELD_ID:Number = 5060;
+	
+	public static var URL;
 
 	private var _Flash: MovieClip;
 	private var m_swfRoot: MovieClip;
@@ -26,13 +31,14 @@ class RPListMod
 	private var m_friendsContentInjector:RPListFriendsContentInjector;
 	private var m_zoneChanged:Boolean;
 	private var m_shareLocationInterval:Number;
-
-	public static var ToonsInVicinity:Array;
-	public static var URL;
-	public static var PlayersURL:String;
+	private var m_toonsInVicinity:Array;
+	private var m_incognito:Boolean;
 
 	public function RPListMod(swfRoot: MovieClip)
 	{
+		m_instance = this;
+		m_shareLocationInterval = -1;
+		
 		// Store a reference to the root MovieClip
 		m_swfRoot = swfRoot;
 		_Flash = MovieClip(swfRoot);
@@ -40,10 +46,15 @@ class RPListMod
 		m_zoneChanged = true;
 		registerGuiElements();
 	}
+	
+	public static function GetInstance():RPListMod
+	{
+		return m_instance;
+	}
 
 	public function OnLoad()
 	{
-		ToonsInVicinity = new Array();
+		m_toonsInVicinity = new Array();
 		Nametags.SignalNametagAdded.Connect(SlotNameAdded, this);
 		Nametags.SignalNametagUpdated.Connect(SlotNameAdded, this);
 		Nametags.SignalNametagRemoved.Connect(SlotNameRemoved, this);
@@ -56,8 +67,6 @@ class RPListMod
 		m_clientLName = Character.GetClientCharacter().GetLastName();
 		m_lastClientPlayfieldID = -1;
 
-		PlayersURL = "";
-
 		var m_NameArray = _root.nametagcontroller;
 
 		// Ignore for Agartha - everyone is in same instance
@@ -68,13 +77,10 @@ class RPListMod
 				var temp:ID32 = _root.nametagcontroller.m_NametagIncomingQueue[proc];
 				if (temp.IsPlayer() && temp.m_Instance != m_clientID)
 				{
-					ToonsInVicinity.push(temp);
+					m_toonsInVicinity.push(temp);
 				}
 			}
 		}
-
-		shareLocation();
-		m_shareLocationInterval = setInterval(this, "shareLocation", SHARE_LOCATION_INTERVAL);
 	}
 
 	public function OnUnload()
@@ -91,19 +97,32 @@ class RPListMod
 
 	public function Activate(config: Archive)
 	{
+		setIncognito(config.FindEntry("is_incognito", false));
 	}
 
 	public function Deactivate(): Archive
 	{
 		var archive: Archive = new Archive();
+		archive.AddEntry("is_incognito", m_incognito);
 		return archive;
 	}
-
-	public function shareLocation()
+	
+	public function isIncognito()
 	{
-
-		MakePlayersURL();
-		m_shareLocationWindow = new RPListShareLocationWindow(_Flash.attachMovie("RPListShareLocationWindow", "m_shareLocationWindow", _Flash.getNextHighestDepth()));
+		return m_incognito;
+	}
+	
+	public function setIncognito(incognito:Boolean)
+	{
+		m_incognito = incognito;
+		if (incognito)
+		{
+			stopSharingLocation();
+		}
+		else
+		{
+			startSharingLocation();
+		}
 	}
 
 	private function registerGuiElements()
@@ -120,7 +139,39 @@ class RPListMod
 		// Prepare tab injector for Friends window
 		m_friendsContentInjector = new RPListFriendsContentInjector(_Flash);
 	}
+	
+	public function startSharingLocation()
+	{
+		if (m_shareLocationInterval == -1)
+		{
+			setTimeout(Delegate.create(this, shareLocation), 10);
+			m_shareLocationInterval = setInterval(this, "shareLocation", SHARE_LOCATION_INTERVAL);
+		}
+	}
+	
+	public function stopSharingLocation()
+	{
+		if (m_shareLocationInterval != -1)
+		{
+			clearInterval(m_shareLocationInterval);
+			m_shareLocationInterval = -1;
+			URL = "https://***REMOVED***/remove?playerId=" + m_clientID;
+			sendServerRequest();
+		}
+	}
 
+	public function shareLocation()
+	{
+
+		MakePlayersURL();
+		sendServerRequest();
+	}
+	
+	private function sendServerRequest()
+	{
+		m_shareLocationWindow = new RPListShareLocationWindow(_Flash.attachMovie("RPListShareLocationWindow", "m_shareLocationWindow", _Flash.getNextHighestDepth()));
+	}
+	
 	function MakePlayersURL()
 	{
 		var currentPlayfieldID:Number = Character.GetClientCharacter().GetPlayfieldID();
@@ -137,12 +188,12 @@ class RPListMod
 			URL = URL + "&clearInstance=true";
 			m_zoneChanged = false;
 		}
-		else if (ToonsInVicinity.length > 0)
+		else if (m_toonsInVicinity.length > 0)
 		{
-			URL = URL + "&players=" + ToonsInVicinity[0].m_Instance;
-			for ( var i:Number = 1 ; i < ToonsInVicinity.length ; ++i )
+			URL = URL + "&players=" + m_toonsInVicinity[0].m_Instance;
+			for ( var i:Number = 1 ; i < m_toonsInVicinity.length ; ++i )
 			{
-				URL = URL + "," + ToonsInVicinity[i].m_Instance;
+				URL = URL + "," + m_toonsInVicinity[i].m_Instance;
 			}
 		}
 		m_lastClientPlayfieldID = currentPlayfieldID;
@@ -155,34 +206,34 @@ class RPListMod
 		{
 			if (characterID.IsPlayer() && !characterID.Equal(Character.GetClientCharacter().GetID()))
 			{
-				for (var i:Number = 0; i < ToonsInVicinity.length; ++i)
+				for (var i:Number = 0; i < m_toonsInVicinity.length; ++i)
 				{
 					// Avoid duplicates
-					if (ToonsInVicinity[i].Equal(characterID))
+					if (m_toonsInVicinity[i].Equal(characterID))
 					{
 						return;
 					}
 				}
 
-				ToonsInVicinity.push(characterID);
+				m_toonsInVicinity.push(characterID);
 			}
 		}
 	}
 
 	public function SlotNameRemoved(characterID:ID32)
 	{
-		for ( var i:Number = 0 ; i < ToonsInVicinity.length ; ++i )
+		for ( var i:Number = 0 ; i < m_toonsInVicinity.length ; ++i )
 		{
-			if ( ToonsInVicinity[i].Equal( characterID ) )
+			if ( m_toonsInVicinity[i].Equal( characterID ) )
 			{
-				ToonsInVicinity.splice( i, 1 );
+				m_toonsInVicinity.splice( i, 1 );
 			}
 		}
 	}
 
 	public function SlotAllNamesRemoved()
 	{
-		ToonsInVicinity = new Array();
+		m_toonsInVicinity = new Array();
 	}
 
 	public function SlotSplashScreenActivated()
