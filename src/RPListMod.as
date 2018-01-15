@@ -3,6 +3,7 @@ import GUI.RPListGetRoleplayersContent;
 import GUI.RPListGetRoleplayersWindow;
 import GUI.RPListShareLocationContent;
 import GUI.RPListShareLocationWindow;
+import com.GameInterface.Chat;
 import com.GameInterface.DistributedValue;
 import com.GameInterface.UtilsBase;
 import com.Utils.Archive;
@@ -14,10 +15,10 @@ import mx.utils.Delegate;
 class RPListMod
 {
 	private static var m_instance:RPListMod;
-	
+
 	private static var SHARE_LOCATION_INTERVAL = 1000 * 60 * 1;
 	private static var AGARTHA_PLAYFIELD_ID:Number = 5060;
-	
+
 	public static var URL;
 
 	private var _Flash: MovieClip;
@@ -33,12 +34,14 @@ class RPListMod
 	private var m_shareLocationInterval:Number;
 	private var m_toonsInVicinity:Array;
 	private var m_incognito:Boolean;
+	private var m_showedIncognitoWarning:Boolean;
 
 	public function RPListMod(swfRoot: MovieClip)
 	{
 		m_instance = this;
 		m_shareLocationInterval = -1;
-		
+		m_showedIncognitoWarning = false;
+
 		// Store a reference to the root MovieClip
 		m_swfRoot = swfRoot;
 		_Flash = MovieClip(swfRoot);
@@ -46,7 +49,7 @@ class RPListMod
 		m_zoneChanged = true;
 		registerGuiElements();
 	}
-	
+
 	public static function GetInstance():RPListMod
 	{
 		return m_instance;
@@ -106,12 +109,12 @@ class RPListMod
 		archive.AddEntry("is_incognito", m_incognito);
 		return archive;
 	}
-	
+
 	public function isIncognito()
 	{
 		return m_incognito;
 	}
-	
+
 	public function setIncognito(incognito:Boolean)
 	{
 		m_incognito = incognito;
@@ -139,7 +142,7 @@ class RPListMod
 		// Prepare tab injector for Friends window
 		m_friendsContentInjector = new RPListFriendsContentInjector(_Flash);
 	}
-	
+
 	public function startSharingLocation()
 	{
 		if (m_shareLocationInterval == -1)
@@ -148,7 +151,7 @@ class RPListMod
 			m_shareLocationInterval = setInterval(this, "shareLocation", SHARE_LOCATION_INTERVAL);
 		}
 	}
-	
+
 	public function stopSharingLocation()
 	{
 		if (m_shareLocationInterval != -1)
@@ -166,12 +169,12 @@ class RPListMod
 		MakePlayersURL();
 		sendServerRequest();
 	}
-	
+
 	private function sendServerRequest()
 	{
 		m_shareLocationWindow = new RPListShareLocationWindow(_Flash.attachMovie("RPListShareLocationWindow", "m_shareLocationWindow", _Flash.getNextHighestDepth()));
 	}
-	
+
 	function MakePlayersURL()
 	{
 		var currentPlayfieldID:Number = Character.GetClientCharacter().GetPlayfieldID();
@@ -236,9 +239,18 @@ class RPListMod
 		m_toonsInVicinity = new Array();
 	}
 
-	public function SlotSplashScreenActivated()
+	public function SlotSplashScreenActivated(activated:Boolean)
 	{
 		m_zoneChanged = true;
+
+		if (!activated)
+		{
+			if (!m_showedIncognitoWarning && isIncognito())
+			{
+				Chat.SignalShowFIFOMessage.Emit("RPList Mod: You are currently invisible");
+			} F
+			m_showedIncognitoWarning = true;
+		}
 	}
 
 }
