@@ -248,7 +248,7 @@ class RPListMod
 			if (!m_showedIncognitoWarning && isIncognito())
 			{
 				Chat.SignalShowFIFOMessage.Emit("RPList Mod: You are currently invisible");
-			} F
+			}
 			m_showedIncognitoWarning = true;
 		}
 	}
