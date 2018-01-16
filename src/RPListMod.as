@@ -165,13 +165,19 @@ class RPListMod
 
 	public function shareLocation()
 	{
-
 		MakePlayersURL();
 		sendServerRequest();
 	}
 
 	private function sendServerRequest()
 	{
+		var swlrpWindow = _root["swlrp\\swlrp"]["m_Window_"];
+
+		if (Selection.getFocus() != null || swlrpWindow || DistributedValue.GetDValue("web_browser"))
+		{
+			return;
+		}
+
 		m_shareLocationWindow = new RPListShareLocationWindow(_Flash.attachMovie("RPListShareLocationWindow", "m_shareLocationWindow", _Flash.getNextHighestDepth()));
 	}
 
