@@ -22,7 +22,6 @@ class RPListMod
 	public static var URL;
 
 	private var _Flash: MovieClip;
-	private var m_swfRoot: MovieClip;
 	private var m_shareLocationWindow:RPListShareLocationWindow;
 	private var m_clientID:Number;
 	private var m_clientNick:String;
@@ -43,7 +42,6 @@ class RPListMod
 		m_showedIncognitoWarning = false;
 
 		// Store a reference to the root MovieClip
-		m_swfRoot = swfRoot;
 		_Flash = MovieClip(swfRoot);
 
 		m_zoneChanged = true;
