@@ -6,6 +6,7 @@ import GUI.RPListShareLocationWindow;
 import com.GameInterface.Chat;
 import com.GameInterface.DistributedValue;
 import com.GameInterface.UtilsBase;
+import com.GameInterface.VicinitySystem;
 import com.Utils.Archive;
 import com.GameInterface.Nametags;
 import com.Utils.ID32;
@@ -56,9 +57,8 @@ class RPListMod
 	public function OnLoad()
 	{
 		m_toonsInVicinity = new Array();
-		Nametags.SignalNametagAdded.Connect(SlotNameAdded, this);
-		Nametags.SignalNametagUpdated.Connect(SlotNameAdded, this);
-		Nametags.SignalNametagRemoved.Connect(SlotNameRemoved, this);
+		VicinitySystem.SignalDynelEnterVicinity.Connect(SlotDynelEnterVicinity, this);
+		VicinitySystem.SignalDynelLeaveVicinity.Connect(SlotDynelLeaveVicinity, this);
 		Nametags.SignalAllNametagsRemoved.Connect(SlotAllNamesRemoved, this);
 		UtilsBase.SignalSplashScreenActivated.Connect(SlotSplashScreenActivated, this);
 
@@ -87,9 +87,8 @@ class RPListMod
 	public function OnUnload()
 	{
 		clearInterval(m_shareLocationInterval);
-		Nametags.SignalNametagAdded.Disconnect(SlotNameAdded);
-		Nametags.SignalNametagUpdated.Disconnect(SlotNameAdded);
-		Nametags.SignalNametagRemoved.Disconnect(SlotNameRemoved);
+		VicinitySystem.SignalDynelEnterVicinity.Disconnect(SlotDynelEnterVicinity);
+		VicinitySystem.SignalDynelLeaveVicinity.Disconnect(SlotDynelLeaveVicinity);
 		Nametags.SignalAllNametagsRemoved.Disconnect(SlotAllNamesRemoved);
 		UtilsBase.SignalSplashScreenActivated.Disconnect(SlotSplashScreenActivated);
 		m_friendsContentInjector.OnUnload();
@@ -206,34 +205,37 @@ class RPListMod
 		m_lastClientPlayfieldID = currentPlayfieldID;
 	}
 
-	public function SlotNameAdded(characterID:ID32)
+	public function SlotDynelEnterVicinity(dynelID:ID32)
 	{
 		// Ignore for Agartha - everyone is in same instance
 		if (Character.GetClientCharacter().GetPlayfieldID() != AGARTHA_PLAYFIELD_ID)
 		{
-			if (characterID.IsPlayer() && !characterID.Equal(Character.GetClientCharacter().GetID()))
+			if (dynelID.IsPlayer() && !dynelID.Equal(Character.GetClientCharacter().GetID()))
 			{
 				for (var i:Number = 0; i < m_toonsInVicinity.length; ++i)
 				{
 					// Avoid duplicates
-					if (m_toonsInVicinity[i].Equal(characterID))
+					if (m_toonsInVicinity[i].Equal(dynelID))
 					{
 						return;
 					}
 				}
 
-				m_toonsInVicinity.push(characterID);
+				m_toonsInVicinity.push(dynelID);
 			}
 		}
 	}
 
-	public function SlotNameRemoved(characterID:ID32)
+	public function SlotDynelLeaveVicinity(dynelID:ID32)
 	{
-		for ( var i:Number = 0 ; i < m_toonsInVicinity.length ; ++i )
+		if (dynelID.IsPlayer() && !dynelID.Equal(Character.GetClientCharacter().GetID()))
 		{
-			if ( m_toonsInVicinity[i].Equal( characterID ) )
+			for (var i:Number = 0 ; i < m_toonsInVicinity.length ; ++i)
 			{
-				m_toonsInVicinity.splice( i, 1 );
+				if (m_toonsInVicinity[i].Equal(dynelID))
+				{
+					m_toonsInVicinity.splice( i, 1 );
+				}
 			}
 		}
 	}
