@@ -155,7 +155,7 @@ class RPListMod
 		{
 			clearInterval(m_shareLocationInterval);
 			m_shareLocationInterval = -1;
-			URL = "https://***REMOVED***/remove?playerId=" + m_clientID;
+			URL = "https://swl-rplist.herokuapp.com/remove?playerId=" + m_clientID;
 			sendServerRequest();
 		}
 	}
@@ -184,7 +184,7 @@ class RPListMod
 
 		var autoMeetup:Boolean = DistributedValue.GetDValue("MeetUpPrompts");
 
-		URL = "https://***REMOVED***/update?playerId=" + m_clientID
+		URL = "https://swl-rplist.herokuapp.com/update?playerId=" + m_clientID
 			  + "&nick=" + m_clientNick + "&firstName=" + m_clientFName + "&lastName=" + m_clientLName
 			  + "&playfieldId=" + currentPlayfieldID + "&autoMeetup=" + autoMeetup;
 

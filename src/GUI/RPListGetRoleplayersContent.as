@@ -27,7 +27,7 @@ class GUI.RPListGetRoleplayersContent extends com.Components.WindowComponentCont
 
 		m_loadTimeout = setTimeout(Delegate.create(this, loadingTimedOut), 5000);
 
-		m_Browser.OpenURL("https://***REMOVED***/list-mod");
+		m_Browser.OpenURL("https://swl-rplist.herokuapp.com/list-mod");
 
 		m_Loader.loadMovie("img://browsertexture/" + m_Browser.GetBrowserName());
 	}
