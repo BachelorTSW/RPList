@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?> 
 <Root>
   <Value name="RPList" value="true" />
+  <Value name="RPLIST_VERSION" value="1.6.2" />
+  <Value name="RPLIST_BACKEND_URL" value="http://rplist.swlrp.com" />
   <Archive name="RPList_Cfg" />
 </Root>

@@ -17,8 +17,9 @@ class RPListMod
 {
 	private static var m_instance:RPListMod;
 	
-	public static var RPLIST_VERSION:String = "1.6.1";
-	public static var BACKEND_URL:String = "http://swl-rplist.ml";
+	
+	public static var RPLIST_VERSION = DistributedValue.Create("RPLIST_VERSION");
+	public static var BACKEND_URL = DistributedValue.Create("RPLIST_BACKEND_URL");
 
 	private static var SHARE_LOCATION_INTERVAL = 1000 * 60 * 1;
 	private static var AGARTHA_PLAYFIELD_ID:Number = 5060;
@@ -158,7 +159,7 @@ class RPListMod
 		{
 			clearInterval(m_shareLocationInterval);
 			m_shareLocationInterval = -1;
-			URL = BACKEND_URL + "/remove?playerId=" + m_clientID;
+			URL = BACKEND_URL.GetValue() + "/remove?playerId=" + m_clientID;
 			sendServerRequest();
 		}
 	}
@@ -187,7 +188,7 @@ class RPListMod
 
 		var autoMeetup:Boolean = DistributedValue.GetDValue("MeetUpPrompts");
 
-		URL = BACKEND_URL + "/update?playerId=" + m_clientID
+		URL = BACKEND_URL.GetValue() + "/update?playerId=" + m_clientID
 			  + "&nick=" + m_clientNick + "&firstName=" + m_clientFName + "&lastName=" + m_clientLName
 			  + "&playfieldId=" + currentPlayfieldID + "&autoMeetup=" + autoMeetup;
 

@@ -27,7 +27,7 @@ class GUI.RPListGetRoleplayersContent extends com.Components.WindowComponentCont
 
 		m_loadTimeout = setTimeout(Delegate.create(this, loadingTimedOut), 5000);
 
-		m_Browser.OpenURL(RPListMod.BACKEND_URL + "/list-mod" + "?client-mod-version=" + RPListMod.RPLIST_VERSION);
+		m_Browser.OpenURL(RPListMod.BACKEND_URL.GetValue() + "/list-mod" + "?client-mod-version=" + RPListMod.RPLIST_VERSION.GetValue());
 
 		m_Loader.loadMovie("img://browsertexture/" + m_Browser.GetBrowserName());
 	}
